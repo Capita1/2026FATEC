@@ -1,0 +1,18 @@
+P2 - Projeto de Sistemas de Informação (completo)
+Vence 2 de dezembro de 2023 às 09:30
+
+Entregue aqui o Projeto de Sistemas de Informação (completo):
+Introdução
+SPT
+SIG
+SAD
+SIE
+SE
+ERP
+CRM
+Internet X Intranet X Extranet
+
+Uma entrega por grupo,
+em docx ou pptx ou pdf
+
+E em xls para verificação do SE.

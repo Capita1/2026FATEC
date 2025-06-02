@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Exemplo formularios</title>
+		<meta charset="utf-8">   
+	</head>
+	<body>
+		<h1>Trabalhando com formularios</h1>
+		<hr>
+		<form action='#' method='GET'>
+			<label for='txtNome'>Informe o seu nome:</label>
+			<input type='text' name='txtNome'/>
+			</br>
+			<input type='radio' name='rdbBorda' id='tra' value='Tradicional' checked/>
+			<label for='tra'>Tradicional</label>
+			</br>						
+			<input type='radio' name='rdbBorda' id='cat' value='Catupiry'/>
+			<label for='cat'>Catupiry</label>
+			</br>						
+			<input type='radio' name='rdbBorda' id='che' value='Chedar'/>
+			<label for='che'>Chedar</label>
+			
+			</br>					
+			</br>
+
+			<label for='adicionais'>Adicionais:</label>
+			</br>
+
+			<input type='checkbox' name='adicionais' id='chkBacon' value='Bacon'/>
+			<label for='chkBacon'>Bacon</label>
+			</br>	
+			<input type='checkbox' name='adicionais' id='chkCebola' value='Cebola'/>
+			<label for='chkCebola'>Cebola Caramelizada</label>
+			
+			</br>
+			</br>
+			
+			<label for='txtObservacoes'>Observações do pedido:</label>
+			</br>
+			<textarea name='txtObservacoes'></textarea>
+
+			</br>
+			</br>
+
+			<label for='cmbPagamento'>Forma de pagamento:</label>
+			</br>
+			<select name='cmbPagamento'>
+				<option value='dinheiro'>Dinheiro</option>
+				<option value='debito'>Debito</option>
+				<option value='credito'>Credito</option>
+				<option value='pix'>PIX</option>
+			</select>
+			</br>
+			</br>
+			<input type='reset' value='Limpar'>
+			<input type='submit' value='Enviar pedido'>
+		</form>
+	</body>
+</html>

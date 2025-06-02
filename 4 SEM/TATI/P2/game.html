@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8">
+		<title>Organizador de Paletes</title>
+		<style>
+			canvas {
+				background: url(concreto.jpg);
+				display:block;
+				margin:0 auto;
+				border:2px solid #333;
+			}
+			#controls {
+				text-align:center;
+				margin:0 auto;
+				margin-top:10px;
+			}
+			button {
+				color:white;
+				margin:5px;
+				padding:10px 20px;
+				font-size:16px;
+				border:2px solid #505050;
+				background:#333;
+				border-radius:10px;
+			}
+			body * {
+				font-family:Arial;
+			}
+			body{
+				background:grey;
+				background-size:cover;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="game">
+			<canvas id="gameCanvas" width="400" height="400"></canvas>
+			<div id="controls">
+				<div>
+					<button onclick="move('up')">↑</button>
+				</div>
+				<div>
+					<button onclick="move('left')">←</button><button id="pegar" onclick="pickupOrDrop()">pegar</button><button onclick="move('right')">→</button>
+				</div>
+				<div>
+					<button onclick="move('down')">↓</button>
+				</div>
+			</div>
+		</div>
+			<script>
+			const canvas = document.getElementById('gameCanvas');
+			const ctx = canvas.getContext('2d');
+			//imagens
+			robo = new Image();
+			robo.src="robot.png";
+			palete = new Image();
+			palete.src="pallet.png";
+			box = new Image();
+			box.src="box.png";
+			robotCarry= new Image();
+			robotCarry.src="robotCarry.png";
+			//variaveis
+			const gridSize = 50;
+			const level = 1
+			let robot = { x: (canvas.width/2), y: (canvas.height/2), carrying: null };
+			let pallets = [];
+			let deliveryZones = [];
+			max = (canvas.width)
+			divisor = gridSize
+			function gerarNumeroAleatorio(max, divisor) {
+			    let numero;
+			    do {
+				numero = Math.floor(Math.random() * max);
+			    } while (numero % divisor !== 0);
+			    return numero;
+			}
+			for (let i = 0; i < (level+1); i++) {
+			    let x = gerarNumeroAleatorio(max, divisor);
+			    let y = gerarNumeroAleatorio(max, divisor);
+			    deliveryZones.push({ x: x, y: y });
+			}
+			for (let i = 0; i < (level+1); i++) {
+			    let x = gerarNumeroAleatorio(max, divisor);
+			    let y = gerarNumeroAleatorio(max, divisor);
+			    pallets.push({ x: x, y: y , picked: false});
+			}
+			const maxScore = ((pallets.length)*10)
+			let score = 0;
+			function draw() {
+				//canvas
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				//bancadas
+				deliveryZones.forEach(zone => {
+				ctx.drawImage(palete, zone.x, zone.y, gridSize, gridSize);
+				});
+				//paletes
+				pallets.forEach(pallet => {
+				if (!pallet.picked) {
+				ctx.drawImage(box, pallet.x, pallet.y, gridSize, gridSize);
+				}
+				});
+				//robô 
+				if (!robot.carrying) {
+				ctx.drawImage(robo, robot.x, robot.y, gridSize, gridSize);
+				}
+				if (robot.carrying) {
+				ctx.drawImage(robotCarry, robot.x, robot.y, gridSize, gridSize);
+				}
+				//pontuação
+				ctx.fillStyle = 'white';
+				ctx.font = '16px Arial';
+				ctx.fillText(`Pontuação: ${score}/${maxScore}`, 10, 20);
+				//nivel
+				ctx.fillStyle = 'white';
+				ctx.font = '16px Arial';
+				ctx.fillText(`Nível ${level}`, 340, 20);
+			}
+			draw();
+			function move(direction) {
+				const step = gridSize;
+				if (direction === 'up' && robot.y - step >= 0) robot.y -= step;
+				if (direction === 'down' && robot.y + step < canvas.height) robot.y += step;
+				if (direction === 'left' && robot.x - step >= 0) robot.x -= step;
+				if (direction === 'right' && robot.x + step < canvas.width) robot.x += step;
+				draw();
+			}
+			function pickupOrDrop() {
+				if (robot.carrying) {
+					//verifica se está na zona 
+					deliveryZones.forEach(zone => {
+						if (robot.x === zone.x && robot.y === zone.y) {
+							robot.carrying.picked = true;
+							robot.carrying = null;
+							score += 10;
+						}
+					});
+				} else {
+					//pegar palete
+					pallets.forEach(pallet => {
+						if (!pallet.picked && robot.x === pallet.x && robot.y === pallet.y) {
+							robot.carrying = pallet;
+							pallet.picked = true;
+							//document.getElementById('pegar');
+						}
+					});
+				}
+				draw();
+			}
+		</script>
+	</body>
+</html>
