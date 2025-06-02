@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>Organizador de Paletes</title>
 		<style>
 			canvas {
@@ -18,35 +19,47 @@
 			}
 			button {
 				color:white;
-				margin:5px;
-				padding:10px 20px;
-				font-size:16px;
+				min-height:65px;
+				min-width:70px;
+				margin:7px;
+				font-size:1em;
+				font-weight:bolder;
 				border:2px solid #505050;
-				background:#333;
 				border-radius:10px;
+				background:#333;
 			}
 			body * {
 				font-family:Arial;
 			}
 			body{
-				background: url(fundo.jpeg);
+				background: url(fundo.jpg);
 				background-size:cover;
 			}
 			.linha{
 				margin:0 auto;
 			}
+			#pegar{
+				font-size:10px;
+			}
+			.espaco{
+				width:20px;
+				height:20px;
+			}
+			body {
+				overflow: hidden;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="game">
-			<canvas id="gameCanvas" width="400" height="400"></canvas>
+			<canvas id="gameCanvas" width="300" height="300"></canvas>
 			<div id="controls">
+				<div class="espaco"> </div>
 				<div class="linha">
 					<button onclick="move('up')">↑</button>
 				</div>
 				<div class="linha">
-
-					<button onclick="move('left')">←</button><button id="pegar" onclick="pickupOrDrop()">󰁢</button><button onclick="move('right')">→</button>
+					<button onclick="move('left')">←</button><button id="pegar" onclick="pickupOrDrop()">pegar</button><button onclick="move('right')">→</button>
 				</div>
 				<div class="linha">
 
@@ -80,23 +93,29 @@
 					draw();
 					if (tempoRestante <= 0) {
 						clearInterval(intervaloTempo);
-						alert('Tempo esgotado! Você chegou até o nível ' + level);
+						alert('Tempo esgotado! Você chegou até o nível ' + level + '!');
 						location.reload();
 					}
 				}, 1000);
 			}
-			
+			function rodar(cordenada, imagem) {
+				ctx.save();
+				ctx.translate(cordenada.x, cordenada.y);
+				ctx.rotate(90 * Math.PI / 180);
+				ctx.drawImage(imagem,0 ,-50, gridSize, gridSize);
+				ctx.restore();
+			}
 			function iniciarNivel() {
 				pallets = [];
 				deliveryZones = [];
 				divisor = gridSize
 				max = (canvas.width)
 				function gerarNumeroAleatorio(max, divisor) {
-				    let numero;
-				    do {
-					numero = Math.floor(Math.random() * max);
-				    } while (numero % divisor !== 0);
-				    return numero;
+					let numero;
+					do {
+						numero = Math.floor(Math.random() * max);
+					} while (numero % divisor !== 0);
+					return numero;
 				}
 				function posicaoOcupada(x, y, elementos) {
 					return elementos.some(el => el.x === x && el.y === y);
@@ -133,13 +152,20 @@
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				//bancadas
 				deliveryZones.forEach(zone => {
-				ctx.drawImage(palete, zone.x, zone.y, gridSize, gridSize);
+					if ((zone.y+zone.x)/10 % 2 === 0) {
+						rodar (zone,palete);
+					} else {
+						ctx.drawImage(palete, zone.x, zone.y, gridSize, gridSize);
+					}
 				});
 				//paletes
 				pallets.forEach(pallet => {
-				if (!pallet.picked) {
-				ctx.drawImage(box, pallet.x, pallet.y, gridSize, gridSize);
-				}
+					if (!pallet.picked) {
+						ctx.drawImage(box, pallet.x, pallet.y, gridSize, gridSize);
+						if ((pallet.y+pallet.x)/10 % 2 === 0) {
+						rodar (pallet,box);
+						}
+					}
 				});
 				//robô 
 				if (!robot.carrying) {
@@ -155,11 +181,11 @@
 				//nivel
 				ctx.fillStyle = 'white';
 				ctx.font = '16px Arial';
-				ctx.fillText(`Nível ${level}`, 340, 20);
+				ctx.fillText(`Nível ${level}`, (canvas.width-60), 20);
 				//tempo	
 				ctx.fillStyle = 'white';
 				ctx.font = '16px Arial';
-				ctx.fillText(`Tempo: ${tempoRestante}s`, 10, 40);
+				ctx.fillText(`Tempo: ${tempoRestante}s`, 10, (canvas.height)-10);
 			}
 			draw();
 			function move(direction) {
@@ -178,7 +204,7 @@
 							robot.carrying.picked = true;
 							robot.carrying = null;
 							score += 10;
-							document.getElementById('pegar').textContent="󰁢";						
+							document.getElementById('pegar').textContent="pegar";						
 						}
 					});
 				} else {
@@ -187,7 +213,7 @@
 						if (!pallet.picked && robot.x === pallet.x && robot.y === pallet.y) {
 							robot.carrying = pallet;
 							pallet.picked = true;
-							document.getElementById('pegar').textContent="󰁊";						
+							document.getElementById('pegar').textContent="soltar";						
 						}
 					});
 				}
