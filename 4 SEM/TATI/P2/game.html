@@ -9,6 +9,7 @@
 				display:block;
 				margin:0 auto;
 				border:2px solid #333;
+				border-radius:10px;
 			}
 			#controls {
 				text-align:center;
@@ -28,8 +29,11 @@
 				font-family:Arial;
 			}
 			body{
-				background:grey;
+				background: url(fundo.jpeg);
 				background-size:cover;
+			}
+			.linha{
+				margin:0 auto;
 			}
 		</style>
 	</head>
@@ -37,13 +41,15 @@
 		<div id="game">
 			<canvas id="gameCanvas" width="400" height="400"></canvas>
 			<div id="controls">
-				<div>
+				<div class="linha">
 					<button onclick="move('up')">↑</button>
 				</div>
-				<div>
-					<button onclick="move('left')">←</button><button id="pegar" onclick="pickupOrDrop()">pegar</button><button onclick="move('right')">→</button>
+				<div class="linha">
+
+					<button onclick="move('left')">←</button><button id="pegar" onclick="pickupOrDrop()">󰁢</button><button onclick="move('right')">→</button>
 				</div>
-				<div>
+				<div class="linha">
+
 					<button onclick="move('down')">↓</button>
 				</div>
 			</div>
@@ -60,33 +66,68 @@
 			box.src="box.png";
 			robotCarry= new Image();
 			robotCarry.src="robotCarry.png";
-			//variaveis
+			
 			const gridSize = 50;
-			const level = 1
-			let robot = { x: (canvas.width/2), y: (canvas.height/2), carrying: null };
-			let pallets = [];
-			let deliveryZones = [];
-			max = (canvas.width)
-			divisor = gridSize
-			function gerarNumeroAleatorio(max, divisor) {
-			    let numero;
-			    do {
-				numero = Math.floor(Math.random() * max);
-			    } while (numero % divisor !== 0);
-			    return numero;
+			let level = 1
+			let tempoRestante = 30; // segundos
+			let intervaloTempo;
+			function iniciarTimer() {
+				clearInterval(intervaloTempo); // evita múltiplos timers
+				tempoRestante = 30; // ou outro valor conforme o nível
+
+				intervaloTempo = setInterval(() => {
+					tempoRestante--;
+					draw();
+					if (tempoRestante <= 0) {
+						clearInterval(intervaloTempo);
+						alert('Tempo esgotado! Você chegou até o nível ' + level);
+						location.reload();
+					}
+				}, 1000);
 			}
-			for (let i = 0; i < (level+1); i++) {
-			    let x = gerarNumeroAleatorio(max, divisor);
-			    let y = gerarNumeroAleatorio(max, divisor);
-			    deliveryZones.push({ x: x, y: y });
+			
+			function iniciarNivel() {
+				pallets = [];
+				deliveryZones = [];
+				divisor = gridSize
+				max = (canvas.width)
+				function gerarNumeroAleatorio(max, divisor) {
+				    let numero;
+				    do {
+					numero = Math.floor(Math.random() * max);
+				    } while (numero % divisor !== 0);
+				    return numero;
+				}
+				function posicaoOcupada(x, y, elementos) {
+					return elementos.some(el => el.x === x && el.y === y);
+				}
+				// Gerar zonas de entrega
+				while (deliveryZones.length < 2) {
+					let x = gerarNumeroAleatorio(max, divisor);
+					let y = gerarNumeroAleatorio(max, divisor);
+					
+					if (!posicaoOcupada(x, y, deliveryZones)) {
+					    deliveryZones.push({ x: x, y: y });
+					}
+				}
+				// Gerar caixas 
+				while (pallets.length < (level)) {
+					let x = gerarNumeroAleatorio(max, divisor);
+					let y = gerarNumeroAleatorio(max, divisor);
+					if (
+					    !posicaoOcupada(x, y, pallets) && 
+					    !posicaoOcupada(x, y, deliveryZones)
+					) {
+					    pallets.push({ x: x, y: y, picked: false });
+					}
+				}
+				robot = { x: (canvas.width/2), y: (canvas.height/2), carrying: null };
+				score = 0;
+				maxScore = ((pallets.length)*10)
+				iniciarTimer();
+				draw();
 			}
-			for (let i = 0; i < (level+1); i++) {
-			    let x = gerarNumeroAleatorio(max, divisor);
-			    let y = gerarNumeroAleatorio(max, divisor);
-			    pallets.push({ x: x, y: y , picked: false});
-			}
-			const maxScore = ((pallets.length)*10)
-			let score = 0;
+			iniciarNivel();
 			function draw() {
 				//canvas
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -115,6 +156,10 @@
 				ctx.fillStyle = 'white';
 				ctx.font = '16px Arial';
 				ctx.fillText(`Nível ${level}`, 340, 20);
+				//tempo	
+				ctx.fillStyle = 'white';
+				ctx.font = '16px Arial';
+				ctx.fillText(`Tempo: ${tempoRestante}s`, 10, 40);
 			}
 			draw();
 			function move(direction) {
@@ -133,6 +178,7 @@
 							robot.carrying.picked = true;
 							robot.carrying = null;
 							score += 10;
+							document.getElementById('pegar').textContent="󰁢";						
 						}
 					});
 				} else {
@@ -141,12 +187,35 @@
 						if (!pallet.picked && robot.x === pallet.x && robot.y === pallet.y) {
 							robot.carrying = pallet;
 							pallet.picked = true;
-							//document.getElementById('pegar');
+							document.getElementById('pegar').textContent="󰁊";						
 						}
 					});
 				}
 				draw();
+			    	if (maxScore==score) {
+					level += 1;
+					iniciarNivel();
+				}
 			}
+			document.addEventListener('keydown', function(event) {
+				switch(event.key) {
+					case 'k':
+					    move('up');
+					    break;
+					case 'j':
+					    move('down');
+					    break;
+					case 'h':
+					    move('left');
+					    break;
+					case 'l':
+					    move('right');
+					    break;
+					case ' ':
+					    pickupOrDrop();
+					    break;
+				}
+			});
 		</script>
 	</body>
 </html>
