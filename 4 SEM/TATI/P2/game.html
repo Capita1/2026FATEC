@@ -4,6 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>Organizador de Paletes</title>
+		<link rel="icon" type="png" href="robot.png">
 		<style>
 			canvas {
 				background: url(concreto.jpg);
@@ -82,12 +83,11 @@
 			
 			const gridSize = 50;
 			let level = 1
-			let tempoRestante = 30; // segundos
+			tempoRestante = 30;
 			let intervaloTempo;
-			function iniciarTimer() {
+			function iniciarTimer(sobra) {
+				tempoRestante = sobra + 5;
 				clearInterval(intervaloTempo); // evita múltiplos timers
-				tempoRestante = 30; // ou outro valor conforme o nível
-
 				intervaloTempo = setInterval(() => {
 					tempoRestante--;
 					draw();
@@ -143,7 +143,7 @@
 				robot = { x: (canvas.width/2), y: (canvas.height/2), carrying: null };
 				score = 0;
 				maxScore = ((pallets.length)*10)
-				iniciarTimer();
+				iniciarTimer(tempoRestante);
 				draw();
 			}
 			iniciarNivel();
